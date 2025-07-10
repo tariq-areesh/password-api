@@ -3,10 +3,13 @@ const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
+
 admin.initializeApp({
-  credential: admin.credential.cert(require('./serviceAccountKey.json')),
+  credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://trauma-game-password-default-rtdb.europe-west1.firebasedatabase.app"
 });
+
 
 const db = admin.database();
 const app = express();
