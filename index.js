@@ -4,17 +4,26 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;  
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://trauma-game-password-default-rtdb.europe-west1.firebasedatabase.app"
 });
 
-
 const db = admin.database();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+function requireApiKey(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== ADMIN_API_KEY) {
+    return res.status(401).json({ success: false, error: 'Unauthorized: Invalid API key' });
+  }
+  next();
+}
+
 
 app.post('/check-password', async (req, res) => {
   const { password } = req.body;
@@ -38,7 +47,7 @@ app.post('/check-password', async (req, res) => {
 });
 
 
-app.get('/get-passwords', async (req, res) => {
+app.get('/get-passwords', requireApiKey, async (req, res) => {
   try {
     const snapshot = await db.ref('passwords').once('value');
     const passwords = snapshot.val();
@@ -58,7 +67,7 @@ app.get('/get-passwords', async (req, res) => {
 });
 
 
-app.post('/set-password', async (req, res) => {
+app.post('/set-password', requireApiKey, async (req, res) => {
   const { passwordType, newPassword } = req.body;
 
   if (!passwordType || !newPassword) {
