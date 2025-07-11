@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && origin !== 'https://your-netlify-site.netlify.app') {
+  if (origin && origin !== 'https://trauma2.netlify.app') {
     return res.status(403).json({ success: false, error: 'Forbidden: Invalid origin' });
   }
   next();
