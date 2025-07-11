@@ -5,7 +5,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+//const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -25,13 +25,13 @@ app.use((req, res, next) => {
   next();
 });
 
-function requireApiKey(req, res, next) {
+/*function requireApiKey(req, res, next) {
   const apiKey = req.headers['x-api-key'];
   if (apiKey !== ADMIN_API_KEY) {
     return res.status(401).json({ success: false, error: 'Unauthorized: Invalid API key' });
   }
   next();
-}
+}*/
 
 const checkPasswordLimiter = rateLimit({
   windowMs: 60 * 1000,
