@@ -16,13 +16,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-/*app.use((req, res, next) => {
+app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin && origin !== 'https://trauma2.netlify.app') {
     return res.status(403).json({ success: false, error: 'Forbidden: Invalid origin' });
   }
   next();
-});*/
+});
 
 const checkPasswordLimiter = rateLimit({
   windowMs: 60 * 1000,
