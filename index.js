@@ -5,7 +5,6 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
-//const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -19,19 +18,11 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && origin !== 'https://trauma2.netlify.app') {
+  if (origin && origin !== 'https://your-netlify-site.netlify.app') {
     return res.status(403).json({ success: false, error: 'Forbidden: Invalid origin' });
   }
   next();
 });
-
-/*function requireApiKey(req, res, next) {
-  const apiKey = req.headers['x-api-key'];
-  if (apiKey !== ADMIN_API_KEY) {
-    return res.status(401).json({ success: false, error: 'Unauthorized: Invalid API key' });
-  }
-  next();
-}*/
 
 const checkPasswordLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -42,6 +33,7 @@ const checkPasswordLimiter = rateLimit({
 app.post('/check-password', checkPasswordLimiter, async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ success: false });
+
   try {
     const snapshot = await db.ref('passwords').once('value');
     const passwords = snapshot.val();
@@ -58,7 +50,7 @@ app.post('/check-password', checkPasswordLimiter, async (req, res) => {
   }
 });
 
-app.get('/get-passwords', requireApiKey, async (req, res) => {
+app.get('/get-passwords', async (req, res) => {
   try {
     const snapshot = await db.ref('passwords').once('value');
     const passwords = snapshot.val();
@@ -75,7 +67,7 @@ app.get('/get-passwords', requireApiKey, async (req, res) => {
   }
 });
 
-app.post('/set-password', requireApiKey, async (req, res) => {
+app.post('/set-password', async (req, res) => {
   const { passwordType, newPassword } = req.body;
   if (!passwordType || !newPassword) {
     return res.status(400).json({ success: false, error: 'Missing data' });
